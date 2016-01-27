@@ -12,7 +12,11 @@
     "scripts": [
       "scripts/chromereload.js",
       "scripts/background.js"
-    ]
+    ],
+    "persistent": false
   },
-  "permissions": []
+  "permissions": [
+    "<all_urls>",
+    "tabs"
+  ]
 }
