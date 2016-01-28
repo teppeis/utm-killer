@@ -1,5 +1,30 @@
 'use strict';
 
+// MIT License by Jo Liss <joliss42@gmail.com>
+// https://github.com/joliss/js-string-escape
+function esc(string) {
+  return ('' + string).replace(/["'\\\n\r\u2028\u2029]/g, (character) => {
+    // Escape all characters not included in SingleStringCharacters and
+    // DoubleStringCharacters on
+    // http://www.ecma-international.org/ecma-262/5.1/#sec-7.8.4
+    switch (character) {
+      case '"':
+      case '\'':
+      case '\\':
+        return '\\' + character;
+      // Four possible LineTerminator characters need to be escaped:
+      case '\n':
+        return '\\n';
+      case '\r':
+        return '\\r';
+      case '\u2028':
+        return '\\u2028';
+      case '\u2029':
+        return '\\u2029';
+    }
+  });
+}
+
 chrome.runtime.onInstalled.addListener(details => {
   console.log('previousVersion', details.previousVersion);
 });
@@ -10,29 +35,34 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     return;
   }
 
-  let queryStringIndex = tab.url.indexOf('?');
-  if (tab.url.indexOf('utm_') > queryStringIndex) {
-    let stripped = tab.url.replace(
-      /([\?\&]utm_(source|medium|term|campaign|content|cid|reader)=[^&#]+)/ig,
-      ''
-    );
-    if (stripped.charAt(queryStringIndex) === '&') {
-      stripped = stripped.substr(0, queryStringIndex) + '?' +
-        stripped.substr(queryStringIndex + 1);
-    }
-    if (stripped !== tab.url) {
-      if (/'/.test(stripped)) {
-        console.error('invalid url', stripped);
-        return;
-      }
-      let code = `window.location.replace('${stripped}')`;
-      let details = {
-        code,
-        runAt: 'document_start'
-      };
-      chrome.tabs.executeScript(tab.id, details, (result) => {
-        console.log('replaced', stripped, result);
-      });
-    }
+  let url = new URL(tab.url);
+  if (!url.search) {
+    return;
   }
+
+  let strippedSearch = url.search
+    .replace(/^\?/, '')
+    .split('&')
+    .filter(param => !/^utm_/.test(param))
+    .join('&');
+
+  if (strippedSearch) {
+    strippedSearch = '?' + strippedSearch;
+  }
+
+  if (url.search === strippedSearch) {
+    return;
+  }
+
+  url.search = strippedSearch;
+  let strippedUrl = url.toString();
+
+  let code = `history.replaceState(null, null, '${esc(strippedUrl)}')`;
+  let details = {
+    code,
+    runAt: 'document_start'
+  };
+  chrome.tabs.executeScript(tab.id, details, (result) => {
+    console.log('replaced', strippedUrl, result);
+  });
 });
