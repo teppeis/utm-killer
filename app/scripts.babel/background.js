@@ -46,6 +46,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     .filter(param => !/^utm_/.test(param))
     // marketo
     .filter(param => !/^mkt_tok=/.test(param))
+    // oreilly?
+    .filter(param => !/^imm_mid=/.test(param))
     .join('&');
 
   if (strippedSearch) {
