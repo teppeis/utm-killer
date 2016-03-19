@@ -1,9 +1,12 @@
 {
   "name": "utm-killer",
+  "description": "Chrome extension to remove tracking params (like `utm_*`) from URL",
+  "version": "0.0.2",
   "private": true,
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">=4"
   },
+  "main": "nothing",
   "devDependencies": {
     "del": "^1.1.1",
     "gulp": "^3.9.0",
