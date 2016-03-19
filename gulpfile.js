@@ -54,12 +54,8 @@ gulp.task('html',  () => {
 
   return gulp.src('app/*.html')
     .pipe(assets)
-    .pipe($.sourcemaps.init())
-    .pipe($.if('*.css', $.minifyCss({compatibility: '*'})))
-    .pipe($.sourcemaps.write())
     .pipe(assets.restore())
     .pipe($.useref())
-    .pipe($.if('*.html', $.minifyHtml({conditionals: true, loose: true})))
     .pipe(gulp.dest('dist'));
 });
 
@@ -74,9 +70,6 @@ gulp.task('chromeManifest', () => {
         ]
       }
   }))
-  .pipe($.if('*.css', $.minifyCss({compatibility: '*'})))
-  .pipe($.if('*.js', $.sourcemaps.init()))
-  .pipe($.if('*.js', $.sourcemaps.write('.')))
   .pipe(gulp.dest('dist'));
 });
 
@@ -111,8 +104,8 @@ gulp.task('wiredep', () => {
 
 gulp.task('package', function () {
   var manifest = require('./dist/manifest.json');
-  return gulp.src('dist/*')
-      .pipe($.zip('utm killer-' + manifest.version + '.zip'))
+  return gulp.src('dist/**/*')
+      .pipe($.zip('utm_killer-' + manifest.version + '.zip'))
       .pipe(gulp.dest('package'));
 });
 
