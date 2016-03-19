@@ -18,11 +18,8 @@
     "gulp-livereload": "^3.8.1",
     "gulp-load-plugins": "^0.10.0",
     "gulp-size": "^1.2.1",
-    "gulp-useref": "^1.1.1",
     "gulp-zip": "^3.0.2",
-    "main-bower-files": "^2.5.0",
-    "run-sequence": "^1.1.4",
-    "wiredep": "^2.2.2"
+    "run-sequence": "^1.1.4"
   },
   "eslintConfig": {
     "env": {

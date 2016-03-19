@@ -2,7 +2,6 @@ const gulp = require('gulp');
 const gulpLoadPlugins = require('gulp-load-plugins');
 const del = require('del');
 const runSequence = require('run-sequence');
-const wiredep = require('wiredep').stream;
 
 const $ = gulpLoadPlugins();
 
@@ -12,7 +11,6 @@ gulp.task('extras', () => {
     'app/_locales/**',
     '!app/scripts',
     '!app/*.json',
-    '!app/*.html',
   ], {
     base: 'app',
     dot: true
@@ -49,16 +47,6 @@ gulp.task('images', () => {
     .pipe(gulp.dest('dist/images'));
 });
 
-gulp.task('html',  () => {
-  const assets = $.useref.assets({searchPath: ['.tmp', 'app', '.']});
-
-  return gulp.src('app/*.html')
-    .pipe(assets)
-    .pipe(assets.restore())
-    .pipe($.useref())
-    .pipe(gulp.dest('dist'));
-});
-
 gulp.task('chromeManifest', () => {
   return gulp.src('app/manifest.json')
     .pipe($.chromeManifest({
@@ -75,11 +63,10 @@ gulp.task('chromeManifest', () => {
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
-gulp.task('watch', ['lint', 'html'], () => {
+gulp.task('watch', ['lint'], () => {
   $.livereload.listen();
 
   gulp.watch([
-    'app/*.html',
     'app/scripts/**/*.js',
     'app/images/**/*',
     'app/styles/**/*',
@@ -87,19 +74,10 @@ gulp.task('watch', ['lint', 'html'], () => {
   ]).on('change', $.livereload.reload);
 
   gulp.watch('app/scripts/**/*.js', ['lint']);
-  gulp.watch('bower.json', ['wiredep']);
 });
 
 gulp.task('size', () => {
   return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
-});
-
-gulp.task('wiredep', () => {
-  gulp.src('app/*.html')
-    .pipe(wiredep({
-      ignorePath: /^(\.\.\/)*\.\./
-    }))
-    .pipe(gulp.dest('app'));
 });
 
 gulp.task('package', function () {
@@ -112,7 +90,8 @@ gulp.task('package', function () {
 gulp.task('build', (cb) => {
   runSequence(
     'lint', 'chromeManifest',
-    ['html', 'images', 'extras'],
+    // ['html', 'css', 'extras'],
+    ['extras'],
     'size', cb);
 });
 
