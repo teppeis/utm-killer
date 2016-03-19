@@ -61,7 +61,7 @@ gulp.task('chromeManifest', () => {
   .pipe(gulp.dest('dist'));
 });
 
-gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
+gulp.task('clean', () => del(['.tmp', 'dist']));
 
 gulp.task('watch', ['lint'], () => {
   $.livereload.listen();
