@@ -50,7 +50,7 @@ gulp.task('images', () => {
 gulp.task('chromeManifest', () => {
   return gulp.src('app/manifest.json')
     .pipe($.chromeManifest({
-      buildnumber: true,
+      buildnumber: require('./package.json').version,
       background: {
         target: 'scripts/background.js',
         exclude: [
@@ -80,7 +80,7 @@ gulp.task('size', () => {
   return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
 });
 
-gulp.task('package', function () {
+gulp.task('package', ['default'], () => {
   var manifest = require('./dist/manifest.json');
   return gulp.src('dist/**/*')
       .pipe($.zip('utm_killer-' + manifest.version + '.zip'))
