@@ -3,15 +3,15 @@
 // MIT License by Jo Liss <joliss42@gmail.com>
 // https://github.com/joliss/js-string-escape
 function esc(string) {
-  return ('' + string).replace(/["'\\\n\r\u2028\u2029]/g, (character) => {
+  return String(string).replace(/["'\\\n\r\u2028\u2029]/g, character => {
     // Escape all characters not included in SingleStringCharacters and
     // DoubleStringCharacters on
     // http://www.ecma-international.org/ecma-262/5.1/#sec-7.8.4
     switch (character) {
       case '"':
-      case '\'':
+      case "'":
       case '\\':
-        return '\\' + character;
+        return `\\${character}`;
       // Four possible LineTerminator characters need to be escaped:
       case '\n':
         return '\\n';
@@ -21,6 +21,8 @@ function esc(string) {
         return '\\u2028';
       case '\u2029':
         return '\\u2029';
+      default:
+        throw new Error(`Unexpected character: ${character}`);
     }
   });
 }
@@ -35,7 +37,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     return;
   }
 
-  let url = new URL(tab.url);
+  const url = new URL(tab.url);
   if (!url.search) {
     return;
   }
@@ -51,7 +53,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     .join('&');
 
   if (strippedSearch) {
-    strippedSearch = '?' + strippedSearch;
+    strippedSearch = `?${strippedSearch}`;
   }
 
   if (url.search === strippedSearch) {
@@ -59,14 +61,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 
   url.search = strippedSearch;
-  let strippedUrl = url.toString();
+  const strippedUrl = url.toString();
 
-  let code = `history.replaceState(null, null, '${esc(strippedUrl)}')`;
-  let details = {
+  const code = `history.replaceState(null, null, '${esc(strippedUrl)}')`;
+  const details = {
     code,
-    runAt: 'document_start'
+    runAt: 'document_start',
   };
-  chrome.tabs.executeScript(tab.id, details, (result) => {
+  chrome.tabs.executeScript(tab.id, details, result => {
     console.log('replaced', strippedUrl, result);
   });
 });
